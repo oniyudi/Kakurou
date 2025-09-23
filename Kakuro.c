@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+//função para ler o tamanho lógico da matriz
 int ler_tamanho_matriz(){
     int numero;
     do{
@@ -10,6 +11,7 @@ int ler_tamanho_matriz(){
     return numero;
 }
 
+//calcula a soma das colunas
 void efetuar_soma_colunas(int mat[][8], int tam)
 {
     int i, c, soma = 0;
@@ -25,6 +27,7 @@ void efetuar_soma_colunas(int mat[][8], int tam)
     }
 }
 
+//preenche a matriz principal com valores aleatórios entre 0-9
 void preencher_vetor(int mat[][8],int tam){
     int i,c,excluido,soma = 0, sorteio;
 
@@ -61,6 +64,7 @@ void apresentar_matriz(int mat[][8], int tam)
     }
 }
 
+//preenchendo a matriz que o jogador irá ver
 void preencher_matriz_jogo(int mat_main[][8], int mat_game[][8], int tam)
 {
     int i, c, sorteio;
