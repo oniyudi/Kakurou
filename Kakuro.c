@@ -58,9 +58,14 @@ void apresentar_matriz(int mat[][8], int tam)
     {
         for(c = 0; c < tam; c++)
         {
-            printf("%d\t", mat[i][c]);
+            printf("%2d", mat[i][c]);
+            if(c == 0)
+                printf(" | ");
+            printf("\t");
         }
         printf("\n");
+        if(i == 0)
+            printf("-----------------------------------------------------------\n");
     }
 }
 
@@ -86,6 +91,14 @@ void preencher_matriz_jogo(int mat_main[][8], int mat_game[][8], int tam)
     mat_game[0][0] = 0;
 }
 
+void apresentar_game(int mat[][8], int tam)
+{
+    printf("============================= KAKURO =============================\n\n");
+    printf("Vidas: ♥ ♥ ♥\n\n");
+    apresentar_matriz(mat, tam);
+    printf("==================================================================\n\n");
+}
+
 int main()
 {
     srand(time(NULL));
@@ -96,11 +109,13 @@ int main()
 
     preencher_vetor(matriz_principal, tamanho);
 
+    printf("Apresentando a matriz principal\n");
     apresentar_matriz(matriz_principal, tamanho);
 
+    printf("\n\n\n");
     preencher_matriz_jogo(matriz_principal, matriz_b, tamanho);
-    printf("\nApresentando a matriz do jogador:\n");
-    apresentar_matriz(matriz_b, tamanho);
+
+    apresentar_game(matriz_b, tamanho);
 
     return 0;
 }
