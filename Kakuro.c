@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 int ler_tamanho_matriz(){
     int numero;
@@ -23,11 +24,12 @@ int preencher_vetor(int mat[][8],int tam){
     }
 }
 
-void main()
+int main()
 {
-    int tamanho;
+    int tamanho, matriz_principal[8][8], matriz_b[8][8];
     tamanho = ler_tamanho_matriz();
-    int matriz_principal[8][8], matriz_b[8][8];
 
     printf("O tamanho da matriz: %d", tamanho);
+
+    return 0;
 }
