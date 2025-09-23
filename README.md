@@ -1,0 +1,1 @@
+compilador usado no projeto: https://github.com/jmeubank/tdm-gcc/releases/download/v10.3.0-tdm64-2/tdm64-gcc-10.3.0-2.exe
