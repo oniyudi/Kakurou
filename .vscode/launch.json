@@ -1,0 +1,39 @@
+{
+    // Use o IntelliSense para saber mais sobre os atributos possíveis.
+    // Focalizar para exibir as descrições dos atributos existentes.
+    // Para obter mais informações, acesse: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
+            "request": "launch",
+            // O VS Code irá tentar compilar o arquivo C/C++ ativo para este executável
+            "program": "${fileDirname}/${fileBasenameNoExtension}.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            // Permite que o programa seja executado em um terminal externo (como o console do Windows)
+            "externalConsole": true,
+            "MIMode": "gdb",
+            
+            // =========================================================================
+            // *** ESTA LINHA É OBRIGATÓRIA! SUBSTITUA PELO SEU CAMINHO REAL DO GDB.EXE ***
+            // Use barras duplas invertidas (\\) no caminho para o Windows
+            "miDebuggerPath": "C:\\TDM-GCC-64\\bin\\gdb.exe", 
+            // =========================================================================
+            
+            "setupCommands": [
+                {
+                    "description": "Enable pretty printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            // Define qual 'task' (tarefa de compilação) deve ser executada antes de iniciar a depuração.
+            // Certifique-se de que esta task exista no seu arquivo tasks.json!
+            "preLaunchTask": "C/C++: gcc.exe build active file" 
+        }
+    ]
+}
