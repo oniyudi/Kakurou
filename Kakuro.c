@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#define TF 9
 
 //função para ler o tamanho lógico da matriz
 int ler_tamanho_matriz(){
@@ -8,11 +9,12 @@ int ler_tamanho_matriz(){
     do{
     printf("Escolha o tamanho da matriz do Kakuro (Max. 8): ");
     scanf("%d", &numero);}while(numero <1 || numero > 8);
+    numero += 1;
     return numero;
 }
 
 //calcula a soma das colunas
-void efetuar_soma_colunas(int mat[][8], int tam)
+void efetuar_soma_colunas(int mat[][TF], int tam)
 {
     int i, c, soma = 0;
     mat[0][0] = 0;
@@ -28,7 +30,7 @@ void efetuar_soma_colunas(int mat[][8], int tam)
 }
 
 //preenche a matriz principal com valores aleatórios entre 0-9
-void preencher_vetor(int mat[][8],int tam){
+void preencher_vetor(int mat[][TF],int tam){
     int i,c,excluido,soma = 0, sorteio;
 
     for(i=1; i<tam; i++){
@@ -51,7 +53,17 @@ void preencher_vetor(int mat[][8],int tam){
     efetuar_soma_colunas(mat, tam);
 }
 
-void apresentar_matriz(int mat[][8], int tam)
+void print_traco(int tam)
+{
+    int i, qnt;
+    qnt = 8 * (tam+1);
+    for(i = 0; i < qnt; i++)
+    {
+        printf("-");
+    }
+}
+
+void apresentar_matriz(int mat[][TF], int tam)
 {
     int i, c;
     for(i = 0; i < tam; i++)
@@ -61,16 +73,38 @@ void apresentar_matriz(int mat[][8], int tam)
             printf("%2d", mat[i][c]);
             if(c == 0)
                 printf(" | ");
-            printf("\t");
+            if(c == tam-1)
+            {
+                printf("\t| %2d", i);
+            }
+            else
+                printf("\t");
         }
         printf("\n");
         if(i == 0)
-            printf("-----------------------------------------------------------\n");
+        {
+            print_traco(tam);
+            printf("\n");
+        }
+        if(i == tam-1)
+        {
+            print_traco(tam);
+            printf("\n");
+        }
+    }
+    for(i = 0; i < tam; i++)
+    {
+        printf("%2d", i);
+        if(i == 0)
+            printf(" | ");
+        printf("\t");
+        if(i == tam-1)
+            printf("| %2d", 0);
     }
 }
 
 //preenchendo a matriz que o jogador irá ver
-void preencher_matriz_jogo(int mat_main[][8], int mat_game[][8], int tam)
+void preencher_matriz_jogo(int mat_main[][TF], int mat_game[][TF], int tam)
 {
     int i, c, sorteio;
     for(i = 0; i < tam; i++)
@@ -91,31 +125,158 @@ void preencher_matriz_jogo(int mat_main[][8], int mat_game[][8], int tam)
     mat_game[0][0] = 0;
 }
 
-void apresentar_game(int mat[][8], int tam)
+//verifica se os valores informados pelo usuario sao validos
+int validar_entrada(int i, int c, int mat_b[][TF])
 {
-    printf("============================= KAKURO =============================\n\n");
-    printf("Vidas: ♥ ♥ ♥\n\n");
-    apresentar_matriz(mat, tam);
-    printf("==================================================================\n\n");
+    int res = 0;
+    if(i > -1 && i < 9 && c > -1 && c < 9) //se esta dentro do intervalo da matriz
+    {
+        if(i == 0 && c == 0)//caso seja 00, o programa deve parar
+        {
+            res = 1;
+        }
+        else if(mat_b[i][c] != 0)//nao pode escolher uma posicao que é 0
+        {
+            res = 1;
+        }
+        else
+        {
+            printf("Posicao informada invalida\n");
+        }
+    }
+    else
+    {
+        printf("Posicao informada invalida\n");
+    }
+    return res;
+}
+
+void apresentar_vida(int life)
+{
+    switch (life)
+    {
+    case 1:
+        printf("Vidas: <3\n\n");
+        break;
+    case 2:
+        printf("Vidas: <3 <3\n\n");
+        break;
+    case 3:
+        printf("Vidas: <3 <3 <3\n\n");
+    default:
+        break;
+    }
+}
+
+void apresentar_game(int mat_b[][TF], int tam, int *linha, int *coluna, int life)
+{
+    int i, c, res;
+    printf("==================================== KAKURO ====================================\n\n");
+    apresentar_vida(life);
+    apresentar_matriz(mat_b, tam);
+    printf("\n");
+
+    do
+    {
+        printf("Informe a linha e coluna (linha coluna): ");
+        scanf("%d", &i);
+        scanf("%d", &c);
+        res = validar_entrada(i, c, mat_b);
+    } while (res == 0);
+
+    *linha = i;
+    *coluna = c;
+    
+    printf("================================================================================\n\n");
+}
+
+//verifica se o jogador acertou a posicao, se sim, retorna 1
+int verificar_acerto(int line, int col, int mat_main[][TF])
+{
+    int res = 0;
+    if(mat_main[line][col] == 0)
+    {
+        res = 1;
+    }
+
+    return res;
+}
+
+void atualizar_matriz_game(int mat_b[][TF], int line, int col)
+{
+    mat_b[line][col] = 0;
+}
+
+int verificar_vida(int life)
+{
+    int res = 1;
+    if(life - 1 == 0)
+    {
+        res = 0;
+    }
+    return res;
+}
+
+void remover_vida(int *life)
+{
+    printf("ERROU!\n");
+    if(verificar_vida(*life) == 0)
+    {
+        printf("VOCE PERDEU!\n");
+    }
+    *life -= 1;
+}
+
+int verificar_vencedor(int mat_b[][TF], int mat_main[][TF], int tam)
+{
+    int res = 1, i, c;
+    for(i = 1; i < tam; i++)
+    {
+        for(c = 1; c < tam; c++)
+        {
+            if(mat_b[i][c] != mat_main[i][c]){
+                i = tam;
+                c = tam;
+                res = 0;
+            }
+        }
+    }
+    return res;
 }
 
 int main()
 {
     srand(time(NULL));
-    int tamanho, matriz_principal[8][8], matriz_b[8][8]; // matriz principal é a colinha
+    int tamanho, matriz_principal[TF][TF], matriz_b[TF][TF], linha, coluna, vida = 3, vencedor = 0; // matriz principal é a colinha
     tamanho = ler_tamanho_matriz();
-
-    printf("O tamanho da matriz: %d\n", tamanho);
-
     preencher_vetor(matriz_principal, tamanho);
-
-    printf("Apresentando a matriz principal\n");
-    apresentar_matriz(matriz_principal, tamanho);
-
-    printf("\n\n\n");
     preencher_matriz_jogo(matriz_principal, matriz_b, tamanho);
 
-    apresentar_game(matriz_b, tamanho);
+    do
+    {
+        apresentar_game(matriz_b, tamanho, &linha, &coluna, vida);
+        if(linha == 0 && coluna == 0)
+        {
+            printf("JOGO ENCERRADO!\n");
+        }
+        else
+        {
+            if(verificar_acerto(linha, coluna, matriz_principal) == 1)
+            {
+                atualizar_matriz_game(matriz_b, linha, coluna);
+                if(verificar_vencedor(matriz_b, matriz_principal, tamanho) == 1)
+                {
+                    vencedor = 1;
+                    printf("PARABENS VOCE GANHOU!\n");
+                    apresentar_matriz(matriz_b, tamanho);
+                }
+            }
+            else
+            {
+                remover_vida(&vida);
+            }
+        }
+    } while (linha != 0 && coluna != 0 && vida > 0 && vencedor != 1);
 
     return 0;
 }
