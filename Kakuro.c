@@ -1,115 +1,156 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-#define TF 9
+#define TF 8
 
 //função para ler o tamanho lógico da matriz
-int ler_tamanho_matriz(){
-    int numero;
+void ler_tamanho_matriz(int *tl_col, int *tl_lin){
     do{
-    printf("Escolha o tamanho da matriz do Kakuro (Max. 8): ");
-    scanf("%d", &numero);}while(numero <1 || numero > 8);
-    numero += 1;
-    return numero;
+    printf("Escolha a quantidade de linhas no Kakuro (Max. 8): ");
+    scanf("%d", tl_lin);}while(*tl_lin <1 || *tl_lin > 8);
+    do{
+    printf("Escolha a quantidade de colunas no Kakuro (Max. 8): ");
+    scanf("%d", tl_col);}while(*tl_col <1|| *tl_col > 8);
 }
 
 //calcula a soma das colunas
-void efetuar_soma_colunas(int mat[][TF], int tam)
-{
-    int i, c, soma = 0;
-    mat[0][0] = 0;
-    for(c = 1; c < tam; c++)
+    void efetuar_soma_colunas(int mat[][TF], int tl_col, int tl_lin, int soma_col[TF])
     {
-        for(i = 1; i < tam; i++)
+        int i, c, soma = 0;
+        for(c = 0; c < tl_col; c++)
         {
-            soma += mat[i][c];
+            for(i = 0; i < tl_lin; i++)
+            {
+                soma += mat[i][c];
+            }
+            soma_col[c] = soma;
+            soma = 0;
         }
-        mat[0][c] = soma;
+    }
+
+void efetuar_soma_linhas(int mat[][TF],int tl_col,int tl_lin, int soma_lin[TF]){
+ int l, c, soma = 0;
+    for(l = 0; l < tl_lin; l++)
+    {
+        for(c = 0; c < tl_col; c++)
+        {
+            soma += mat[l][c];
+        }
+        soma_lin[l] = soma;
         soma = 0;
     }
 }
 
-//preenche a matriz principal com valores aleatórios entre 0-9
-void preencher_vetor(int mat[][TF],int tam){
-    int i,c,excluido,soma = 0, sorteio;
+void validar_preenchimento_minimo(int mat[][TF], int min, int max, int contador){
+    int linha, coluna, numero;
+    while(contador < min){ //verifica se tem o minimo de numeros para jogar o kakuro
+        linha = rand() %9 + 1;
+        coluna = rand() %9 + 1;
+        if(mat[linha][coluna] == 0){
+            numero = rand() %9 +1;
+            mat[linha][coluna] = numero;
+        }
+        contador++;
+    }
+    while(contador > max){ //verifica se passou do maximo de numeros para jogar o kakuro
+        linha = rand() %9 + 1;
+        coluna = rand() %9 + 1;
+        if(mat[linha][coluna] != 0){
+            mat[linha][coluna] = 0;
+        }
+        contador--;
+    }
+}
 
-    for(i=1; i<tam; i++){
-        for(c = 1; c<tam; c++){
+//preenche a matriz principal com valores aleatórios entre 0-9
+void preencher_vetor(int mat[][TF],int tl_col, int tl_lin, int soma_col[TF], int soma_lin[TF]){
+    int i,c,excluido,sorteio,minimo,maximo,contador = 0;
+    minimo = (tl_col * tl_lin)/3;
+    maximo = (tl_col * tl_lin)/2;
+
+    for(i=0; i<tl_lin; i++){
+        for(c = 0; c<tl_col; c++){
             excluido = rand() %2; //excluido, é para saber se a posicao vai ter um valor ou não;
             if(excluido == 1){
                 sorteio = rand() %9+1; //preenchendo a posicao com um valor aleatorio;
                 mat[i][c] = sorteio;
-                soma+=sorteio;
+                contador++;
             }
             else
             {
                 mat[i][c] = 0;
             }
         }
-        mat[i][0] = soma;
-        soma = 0;
     }
-    
-    efetuar_soma_colunas(mat, tam);
+    validar_preenchimento_minimo(mat,minimo,maximo,contador);
+    efetuar_soma_colunas(mat,tl_col,tl_lin,soma_col);
+    efetuar_soma_linhas(mat,tl_col,tl_lin,soma_lin);
 }
 
-void print_traco(int tam)
+void print_traco(int tl_col)
 {
     int i, qnt;
-    qnt = 8 * (tam+1);
+    if(tl_col  == 1 ){
+        qnt = 20 * (tl_col);
+    }else if(tl_col == 2){
+        qnt = 14 * (tl_col);
+    }
+    else if(tl_col > 2 && tl_col < 5 ){
+        qnt = 12 * (tl_col);
+    }else{
+        qnt = 10 * (tl_col);
+
+    }
+
     for(i = 0; i < qnt; i++)
     {
         printf("-");
     }
+    printf("\n");
 }
 
-void apresentar_matriz(int mat[][TF], int tam)
+void apresentar_matriz(int mat[][TF], int tl_col, int tl_lin, int soma_col[TF], int soma_lin[TF])
 {
-    int i, c;
-    for(i = 0; i < tam; i++)
-    {
-        for(c = 0; c < tam; c++)
-        {
-            printf("%2d", mat[i][c]);
-            if(c == 0)
-                printf(" | ");
-            if(c == tam-1)
-            {
-                printf("\t| %2d", i);
+    int i, c, contador = 0;
+    printf("00 |  \t");
+    for(i = 0; i < tl_col; i++){
+        printf("%d \t", soma_col[i]);
+        if(i ==  tl_col-1){
+            printf("| C");
+        }
+    }
+    printf("\n");
+    print_traco(tl_col);
+ 
+for(i = 0; i< tl_lin; i++){
+        printf("%2d | \t", soma_lin[i]);
+        for(c = 0; c< tl_col; c++){
+            printf("%d\t",mat[i][c]);
+            if(c ==  tl_col-1){
+                printf("| %d",contador);
+                contador++;
             }
-            else
-                printf("\t");
         }
         printf("\n");
-        if(i == 0)
-        {
-            print_traco(tam);
-            printf("\n");
-        }
-        if(i == tam-1)
-        {
-            print_traco(tam);
-            printf("\n");
-        }
     }
-    for(i = 0; i < tam; i++)
-    {
-        printf("%2d", i);
-        if(i == 0)
-            printf(" | ");
-        printf("\t");
-        if(i == tam-1)
-            printf("| %2d", 0);
+
+    print_traco(tl_col);
+    contador = 0;
+  
+    printf("L  | \t");    
+    for(contador = 0; contador < tl_col; contador++){
+        printf("%d\t", contador);
     }
+    printf("|");
 }
 
 //preenchendo a matriz que o jogador irá ver
-void preencher_matriz_jogo(int mat_main[][TF], int mat_game[][TF], int tam)
+void preencher_matriz_jogo(int mat_main[][TF], int mat_game[][TF], int tl_col,int tl_lin)
 {
     int i, c, sorteio;
-    for(i = 0; i < tam; i++)
+    for(i = 0; i < tl_lin; i++)
     {
-        for(c = 0; c < tam; c++)
+        for(c = 0; c < tl_col; c++)
         {
             if(mat_main[i][c] == 0)
             {
@@ -122,20 +163,19 @@ void preencher_matriz_jogo(int mat_main[][TF], int mat_game[][TF], int tam)
             }
         }
     }
-    mat_game[0][0] = 0;
 }
 
 //verifica se os valores informados pelo usuario sao validos
 int validar_entrada(int i, int c, int mat_b[][TF])
 {
     int res = 0;
-    if(i > -1 && i < 9 && c > -1 && c < 9) //se esta dentro do intervalo da matriz
+    if(i > -1 && i < 10 && c > -1 && c < 10) //se esta dentro do intervalo da matriz
     {
-        if(i == 0 && c == 0)//caso seja 00, o programa deve parar
+        if(i == 9 && c == 9)//caso seja 9 9, o programa deve parar
         {
-            res = 1;
+            res = 1;            
         }
-        else if(mat_b[i][c] != 0)//nao pode escolher uma posicao que é 0
+        else if(mat_b[i][c] != 9)//nao pode escolher uma posicao que é 0
         {
             res = 1;
         }
@@ -168,12 +208,12 @@ void apresentar_vida(int life)
     }
 }
 
-void apresentar_game(int mat_b[][TF], int tam, int *linha, int *coluna, int life)
+void apresentar_game(int mat_b[][TF], int tl_col, int tl_lin, int *linha, int *coluna, int life, int soma_col[TF], int soma_lin[TF])
 {
     int i, c, res;
-    printf("==================================== KAKURO ====================================\n\n");
+    printf("\n==================================== KAKURO ====================================\n\n");
     apresentar_vida(life);
-    apresentar_matriz(mat_b, tam);
+    apresentar_matriz(mat_b, tl_col, tl_lin, soma_col, soma_lin);
     printf("\n");
 
     do
@@ -227,16 +267,16 @@ void remover_vida(int *life)
     *life -= 1;
 }
 
-int verificar_vencedor(int mat_b[][TF], int mat_main[][TF], int tam)
+int verificar_vencedor(int mat_b[][TF], int mat_main[][TF], int tl_col, int tl_lin)
 {
     int res = 1, i, c;
-    for(i = 1; i < tam; i++)
+    for(i = 1; i < tl_lin; i++)
     {
-        for(c = 1; c < tam; c++)
+        for(c = 1; c < tl_col; c++)
         {
             if(mat_b[i][c] != mat_main[i][c]){
-                i = tam;
-                c = tam;
+                i = tl_lin;
+                c = tl_col;
                 res = 0;
             }
         }
@@ -247,15 +287,17 @@ int verificar_vencedor(int mat_b[][TF], int mat_main[][TF], int tam)
 int main()
 {
     srand(time(NULL));
-    int tamanho, matriz_principal[TF][TF], matriz_b[TF][TF], linha, coluna, vida = 3, vencedor = 0; // matriz principal é a colinha
-    tamanho = ler_tamanho_matriz();
-    preencher_vetor(matriz_principal, tamanho);
-    preencher_matriz_jogo(matriz_principal, matriz_b, tamanho);
+    int tamanho_col,tamanho_lin, matriz_principal[TF][TF], matriz_b[TF][TF], linha, coluna, vida = 3, vencedor = 0, vet_soma_col[TF],vet_soma_lin[TF]; // matriz principal é a colinha
+    ler_tamanho_matriz(&tamanho_col,&tamanho_lin);
+    printf("Valor da linha: %d\n", tamanho_lin);
+    preencher_vetor(matriz_principal,tamanho_col,tamanho_lin,vet_soma_col,vet_soma_lin);
+    preencher_matriz_jogo(matriz_principal, matriz_b, tamanho_col, tamanho_lin);
 
+    apresentar_matriz(matriz_principal,tamanho_col,tamanho_lin,vet_soma_col,vet_soma_lin);
     do
     {
-        apresentar_game(matriz_b, tamanho, &linha, &coluna, vida);
-        if(linha == 0 && coluna == 0)
+        apresentar_game(matriz_b,tamanho_col,tamanho_lin, &linha, &coluna, vida,vet_soma_col,vet_soma_lin);
+        if(linha == 9 && coluna == 9)
         {
             printf("JOGO ENCERRADO!\n");
         }
@@ -264,11 +306,11 @@ int main()
             if(verificar_acerto(linha, coluna, matriz_principal) == 1)
             {
                 atualizar_matriz_game(matriz_b, linha, coluna);
-                if(verificar_vencedor(matriz_b, matriz_principal, tamanho) == 1)
+                if(verificar_vencedor(matriz_b, matriz_principal,tamanho_col,tamanho_lin) == 1)
                 {
                     vencedor = 1;
                     printf("PARABENS VOCE GANHOU!\n");
-                    apresentar_matriz(matriz_b, tamanho);
+                    apresentar_matriz(matriz_b, tamanho_col,tamanho_lin,vet_soma_lin,vet_soma_col);
                 }
             }
             else
@@ -276,7 +318,7 @@ int main()
                 remover_vida(&vida);
             }
         }
-    } while (linha != 0 && coluna != 0 && vida > 0 && vencedor != 1);
+    } while (linha != 9 && coluna != 9 && vida > 0 && vencedor != 1);
 
     return 0;
 }
